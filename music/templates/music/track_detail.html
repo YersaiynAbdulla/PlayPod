@@ -90,9 +90,6 @@ document.addEventListener("DOMContentLoaded", function () {
   audio.addEventListener('timeupdate', () => {
     currentTimeEl.textContent = formatTime(audio.currentTime);
     progress.value = Math.floor(audio.currentTime);
-
-    audio.play();
-    playIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
   });
 
   progress.addEventListener('input', () => {
