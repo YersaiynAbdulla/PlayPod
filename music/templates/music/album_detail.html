@@ -1,0 +1,102 @@
+{% extends 'music/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex align-items-center justify-content-between mb-5">
+    <div class="d-flex align-items-center">
+      {% if album.cover %}
+        <img src="{{ album.cover.url }}" alt="{{ album.title }}"
+             class="rounded-4 shadow-sm me-4"
+             style="width: 180px; height: 180px; object-fit: cover;">
+      {% endif %}
+      <div>
+        <p class="text-uppercase text-white-50 mb-1" style="font-size: 0.85rem;">Альбом</p>
+        <h1 class="text-white fw-bold mb-2">{{ album.title }}</h1>
+        {% if album.artist %}
+          <p class="text-white-50 mb-1">Составитель: {{ album.artist }}</p>
+        {% endif %}
+        <p class="text-white-50 small">{{ album.tracks.count }} трек(ов)</p>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'album_edit' album.pk %}?next={{ request.path }}" class="btn btn-outline-light btn-icon" title="Редактировать">
+        <i class="bi bi-pencil"></i>
+      </a>
+      <a href="{% url 'album_delete' album.pk %}" class="btn btn-outline-light btn-icon" title="Удалить">
+        <i class="bi bi-trash"></i>
+      </a>
+    </div>
+  </div>
+
+  <h5 class="text-white mb-4">Треки из альбома: <span class="fw-semibold">{{ album.title }}</span></h5>
+
+  {% if album.tracks.all %}
+    <div class="row">
+      {% for track in album.tracks.all %}
+        <div class="col-12 mb-3">
+          <a href="{% url 'track_detail' track.pk %}?next={{ request.path }}" class="text-decoration-none">
+            <div class="card d-flex flex-row justify-content-between align-items-center px-4 py-3"
+                 style="background-color: #1e1e1e; border-radius: 16px;">
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-white-50" style="width: 24px;">{{ forloop.counter }}</span>
+                <div>
+                  <h5 class="text-white mb-1">{{ track.title }}</h5>
+                  <p class="mb-0 text-white-50 small">{{ track.artist }}</p>
+                </div>
+              </div>
+              <span class="text-white-50 small">
+                {% if track.duration %}{{ track.duration }}{% else %}–{% endif %}
+              </span>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-light">Нет треков в этом альбоме.</p>
+  {% endif %}
+
+  <a href="{% url 'album_list' %}" class="btn btn-outline-light mt-4 rounded-pill">← Назад к альбомам</a>
+</div>
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const trackList = document.querySelectorAll('.card');
+    const player = new Audio();
+    let current = 0;
+
+    if (!trackList.length) return;
+
+    function playTrack(index) {
+      if (index >= trackList.length) return;
+
+      current = index;
+      const trackId = trackList[index].closest('a').href.split('/').filter(Boolean).pop();
+
+      fetch(`/tracks/${trackId}/json/`)
+        .then(response => response.json())
+        .then(data => {
+          player.src = data.audio_url;
+          player.play();
+        });
+
+      trackList.forEach(card => card.classList.remove('border', 'border-success'));
+    }
+
+    player.addEventListener('ended', () => {
+      playTrack(current + 1);
+    });
+
+    trackList.forEach((card, index) => {
+      card.addEventListener('click', () => playTrack(index));
+    });
+
+    playTrack(0);
+  });
+</script>
+{% endblock %}
+
+{% endblock %}

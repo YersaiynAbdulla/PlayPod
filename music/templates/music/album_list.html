@@ -1,0 +1,30 @@
+{% extends 'music/base.html' %}
+{% load static %}
+
+{% block content %}
+  <h2>Альбомы</h2>
+
+  {% if albums %}
+    <div class="row">
+      {% for album in albums %}
+        <div class="col-md-6 mb-4">
+          <a href="{% url 'album_detail' album.pk %}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm d-flex flex-row align-items-center" style="background-color: #1e1e1e; border-radius: 16px; padding: 12px;">
+              {% if album.cover %}
+                <img src="{{ album.cover.url }}" alt="Обложка альбома" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+              {% else %}
+                <img src="{% static 'images/default_cover.jpg' %}" alt="Обложка по умолчанию" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+              {% endif %}
+              <div class="ms-3">
+                <h5 class="text-white mb-1">{{ album.title }}</h5>
+                <p class="card-text mb-0">{{ album.artist }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Альбомы не найдены.</p>
+  {% endif %}
+{% endblock %}

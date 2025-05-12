@@ -1,0 +1,48 @@
+{% extends 'music/base.html' %}
+{% load form_filters %}
+
+{% block content %}
+  <div class="container" style="max-width: 600px;">
+    <h2 class="text-white mb-4">{{ title }}</h2>
+
+    <form method="post" enctype="multipart/form-data" class="d-grid gap-3">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="{{ form.title.id_for_label }}" class="form-label text-white-50">Название</label>
+        {{ form.title|add_class:"form-control bg-dark text-white border-secondary" }}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.artist.id_for_label }}" class="form-label text-white-50">Исполнитель</label>
+        {{ form.artist|add_class:"form-control bg-dark text-white border-secondary" }}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.genre.id_for_label }}" class="form-label text-white-50">Жанр</label>
+        {{ form.genre|add_class:"form-control bg-dark text-white border-secondary" }}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.album.id_for_label }}" class="form-label text-white-50">Альбом</label>
+        {{ form.album|add_class:"form-select bg-dark text-white border-secondary" }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label text-white-50">Аудиофайл</label><br>
+        {% if form.instance.audio_file %}
+          <audio controls class="mb-2 w-100">
+            <source src="{{ form.instance.audio_file.url }}" type="audio/mpeg">
+            Ваш браузер не поддерживает аудиоэлемент.
+          </audio>
+        {% endif %}
+        <label for="id_audio_file" class="btn btn-outline-light">Выбрать аудио</label>
+        <input type="file" name="audio_file" id="id_audio_file" class="d-none" accept="audio/*">
+      </div>
+
+      <button type="submit" class="btn btn-outline-light rounded-pill mt-3 px-4">Сохранить</button>
+    </form>
+
+    <a href="{{ next_url }}" class="btn btn-outline-light rounded-pill mt-4">← Назад</a>
+  </div>
+{% endblock %}

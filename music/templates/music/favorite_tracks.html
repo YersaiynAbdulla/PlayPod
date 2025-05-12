@@ -1,0 +1,25 @@
+{% extends 'music/base.html' %}
+
+{% block content %}
+  <h2>Мои избранные треки</h2>
+
+  {% if tracks %}
+    <div class="row">
+      {% for track in tracks %}
+        <div class="col-md-6 mb-4">
+          <a href="{% url 'track_detail' track.pk %}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm d-flex flex-row align-items-center" style="background-color: #1e1e1e; border-radius: 16px; padding: 12px;">
+              <img src="{{ track.album.cover.url }}" alt="Обложка" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+              <div class="ms-3">
+                <h5 class="text-white mb-1">{{ track.title }}</h5>
+                <p class="card-text mb-0">{{ track.artist }} — {{ track.genre }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Вы ещё не добавили треки в избранное.</p>
+  {% endif %}
+{% endblock %}

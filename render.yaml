@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: playpod
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py migrate --noinput
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn playpod_project.wsgi
+    envVars:
+      - key: DEBUG
+        value: False
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: playpod-db
+          property: connectionString
+
+databases:
+  - name: playpod-db
+    plan: free

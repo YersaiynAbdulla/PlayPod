@@ -1,0 +1,43 @@
+{% extends 'music/base.html' %}
+
+{% block content %}
+  <h2 class="mb-4">Каталог треков</h2>
+
+  {% if tracks %}
+    <div class="row">
+      {% for track in tracks %}
+        <div class="col-md-6 mb-4">
+          <a href="{% url 'track_detail' track.pk %}?next={{ request.path }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm d-flex flex-row align-items-center" style="background-color: #1e1e1e; border-radius: 16px; padding: 12px;">
+              <img src="{{ track.album.cover.url }}" alt="Обложка" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+              <div class="ms-3">
+                <h5 class="text-white mb-1">{{ track.title }}</h5>
+                <p class="mb-0 text-white-50 small">{{ track.artist }} — {{ track.genre }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-light">Ничего не найдено.</p>
+  {% endif %}
+
+  <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="filters">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Фильтры</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p class="text-white fw-semibold">Жанры:</p>
+      {% for g in genres %}
+        <a href="?genre={{ g }}" class="btn btn-sm btn-outline-light mb-2 me-2">{{ g }}</a>
+      {% endfor %}
+      <hr class="bg-light">
+      <p class="text-white fw-semibold">Исполнители:</p>
+      {% for a in artists %}
+        <a href="?artist={{ a }}" class="btn btn-sm btn-outline-light mb-2 me-2">{{ a }}</a>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

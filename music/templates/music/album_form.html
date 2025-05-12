@@ -1,0 +1,44 @@
+{% extends 'music/base.html' %}
+{% load form_filters %}
+
+{% block content %}
+  <div class="container" style="max-width: 600px;">
+    <h2 class="text-white mb-4">{{ title }}</h2>
+
+    <form method="post" enctype="multipart/form-data" class="d-grid gap-3">
+      {% csrf_token %}
+
+      <div class="form-group mb-4">
+        <label class="form-label text-white-50">Обложка</label><br>
+      
+        <img id="cover-preview"
+             src="{% if form.instance.cover %}{{ form.instance.cover.url }}{% endif %}"
+             alt="Обложка"
+             class="rounded shadow-sm mb-3"
+             style="width: 160px; height: 160px; object-fit: cover; display: {% if form.instance.cover %}block{% else %}none{% endif %};">
+      
+        {% if form.instance.pk %}
+          <label for="id_cover" class="btn btn-outline-light">Изменить обложку</label>
+        {% else %}
+          <label for="id_cover" class="btn btn-outline-light">Загрузить обложку</label>
+        {% endif %}
+           
+        <input type="file" name="cover" id="id_cover" class="d-none" accept="image/*">
+      </div>   
+
+      <div class="form-group">
+        <label for="{{ form.title.id_for_label }}" class="form-label text-white-50">Название</label>
+        {{ form.title|add_class:"form-control bg-dark text-white border-secondary" }}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.artist.id_for_label }}" class="form-label text-white-50">Составитель</label>
+        {{ form.artist|add_class:"form-control bg-dark text-white border-secondary" }}
+      </div>
+
+      <button type="submit" class="btn btn-outline-light rounded-pill mt-3 px-4">Сохранить</button>
+    </form>
+
+    <a href="{{ next_url }}" class="btn btn-outline-light rounded-pill mt-4">← Назад</a>
+  </div>
+{% endblock %}

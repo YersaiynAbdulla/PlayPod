@@ -1,0 +1,118 @@
+{% extends "music/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5 d-flex justify-content-center">
+  <div class="bg-dark rounded-4 p-4 text-center shadow" style="max-width: 400px; width: 100%;">
+    <img src="{{ track.album.cover.url }}" class="img-fluid rounded mb-3 mx-auto d-block" alt="{{ track.title }}" style="max-height: 250px;">
+
+    <h4 class="text-white fw-semibold mb-1">{{ track.title }}</h4>
+    <p class="text-muted mb-4">{{ track.artist }} — {{ track.genre }}</p>
+
+    <div id="custom-player" class="bg-secondary bg-opacity-10 p-3 rounded mb-4">
+      <audio id="audio" src="{{ track.audio_file.url }}"></audio>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-white-50 small" id="current-time">0:00</span>
+        <span class="text-white-50 small" id="duration">0:00</span>
+      </div>
+      <input type="range" id="progress" class="form-range" value="0" min="0" max="100">
+      <div class="d-flex justify-content-center mt-3 gap-3">
+        {% if prev_track_url %}
+          <a href="{{ prev_track_url }}" class="btn btn-outline-light rounded-circle" title="Предыдущий">
+            <i class="bi bi-skip-backward-fill"></i>
+          </a>
+        {% endif %}
+
+        <button id="play-pause" class="btn btn-outline-light rounded-circle" title="Пуск / Пауза">
+          <i class="bi bi-play-fill"></i>
+        </button>
+
+        {% if next_track_url %}
+          <a href="{{ next_track_url }}" class="btn btn-outline-light rounded-circle" title="Следующий">
+            <i class="bi bi-skip-forward-fill"></i>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-center gap-3 mb-3">
+      <form method="post" action="{% url 'toggle_favorite' track.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-light icon-btn" title="Избранное">
+          {% if user in track.favorited_by.all %}
+            <i class="bi bi-heart-fill text-danger"></i>
+          {% else %}
+            <i class="bi bi-heart text-white"></i>
+          {% endif %}
+        </button>
+      </form>
+
+      <a href="{% url 'track_edit' track.pk %}?next={{ request.path }}" class="btn btn-outline-light icon-btn" title="Редактировать">
+        <i class="bi bi-pencil text-white"></i>
+      </a>      
+
+      <a href="{% url 'track_delete' track.pk %}" class="btn btn-outline-light icon-btn" title="Удалить">
+        <i class="bi bi-trash3 text-white"></i>
+      </a>
+    </div>
+
+    <a href="{{ next_url }}" class="btn btn-outline-light mt-4 rounded-pill">← Назад</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const audio = document.getElementById('audio');
+  const playPauseBtn = document.getElementById('play-pause');
+  const playIcon = playPauseBtn?.querySelector('i');
+  const progress = document.getElementById('progress');
+  const currentTimeEl = document.getElementById('current-time');
+  const durationEl = document.getElementById('duration');
+
+  if (!audio || !playPauseBtn || !progress || !currentTimeEl || !durationEl) {
+    console.warn("Плеер не активен на этой странице");
+    return;
+  }
+
+  function formatTime(sec) {
+    const minutes = Math.floor(sec / 60);
+    const seconds = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  }
+
+  audio.addEventListener('loadedmetadata', () => {
+    durationEl.textContent = formatTime(audio.duration);
+    progress.max = Math.floor(audio.duration);
+  });
+
+  audio.addEventListener('timeupdate', () => {
+    currentTimeEl.textContent = formatTime(audio.currentTime);
+    progress.value = Math.floor(audio.currentTime);
+  });
+
+  progress.addEventListener('input', () => {
+    audio.currentTime = progress.value;
+  });
+
+  playPauseBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      playIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
+    } else {
+      audio.pause();
+      playIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+    }
+  });
+
+  audio.addEventListener('ended', () => {
+    const nextUrl = document.querySelector('a[title="Следующий"]');
+    if (nextUrl) {
+      window.location.href = nextUrl.href;
+    }
+  });
+});
+</script>
+
+{% endblock %}
