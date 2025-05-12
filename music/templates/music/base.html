@@ -143,8 +143,8 @@
             <button class="btn btn-outline-light btn-sm" data-bs-toggle="offcanvas" data-bs-target="#filters">
               <i class="bi bi-funnel-fill"></i> Фильтр
             </button>
-            <form class="d-flex" method="get" action="{% url 'track_list' %}">
-              <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Поиск..." aria-label="Поиск">
+            <form class="d-flex" method="get" action="{{ request.path }}">
+              <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Поиск..." aria-label="Поиск" value="{{ request.GET.q }}">
               <button class="btn btn-outline-light btn-sm" type="submit"><i class="bi bi-search"></i></button>
             </form>
           </div>

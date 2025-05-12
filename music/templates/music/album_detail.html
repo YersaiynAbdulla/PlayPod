@@ -32,31 +32,6 @@
 
   <h5 class="text-white mb-4">Треки из альбома: <span class="fw-semibold">{{ album.title }}</span></h5>
 
-  <form method="get" class="row g-2 mb-4">
-    <div class="col-md-4">
-      <input type="text" name="q" class="form-control" placeholder="Поиск..." value="{{ query }}">
-    </div>
-    <div class="col-md-3">
-      <select name="genre" class="form-select">
-        <option value="">Жанр</option>
-        {% for g in genres %}
-          <option value="{{ g }}" {% if genre == g %}selected{% endif %}>{{ g }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-md-3">
-      <select name="artist" class="form-select">
-        <option value="">Артист</option>
-        {% for a in artists %}
-          <option value="{{ a }}" {% if artist == a %}selected{% endif %}>{{ a }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-md-2">
-      <button type="submit" class="btn btn-outline-light w-100">🔍</button>
-    </div>
-  </form>
-
   {% if album.tracks.all %}
     <div class="row">
       {% for track in album.tracks.all %}
