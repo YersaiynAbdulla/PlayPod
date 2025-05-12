@@ -7,7 +7,7 @@ services:
       pip install -r requirements.txt
       python manage.py migrate --noinput
       python manage.py collectstatic --noinput
-    startCommand: gunicorn playpod_project.wsgi
+    startCommand: gunicorn playpod_project.wsgi:application --bind 0.0.0.0:8000
     envVars:
       - key: DEBUG
         value: False
@@ -17,6 +17,8 @@ services:
         fromDatabase:
           name: playpod-db
           property: connectionString
+      - key: ALLOWED_HOSTS
+        value: playpod-.onrender.com
 
 databases:
   - name: playpod-db

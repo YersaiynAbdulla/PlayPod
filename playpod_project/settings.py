@@ -23,13 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure--&m#k%)vaq1dn7-llyl39-)d$u9vq_-&!n(!l7-ijh1l$q(g-a'
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-dev-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os. environ.get("ALLOWED_HOSTS", "*").split(" ")
+ALLOWED_HOSTS = os. environ.get("ALLOWED_HOSTS", "*").split()
 
 
 # Application definition
@@ -85,8 +85,7 @@ DATABASES = {
     }
 }
 
-database_url = os.environ.get("DATABASE_URL")
-DATABASES["default"]=dj_database_url.parse(database_url)
+DATABASES["default"]=dj_database_url.config(default=DATABASES["default"])
 
 
 
