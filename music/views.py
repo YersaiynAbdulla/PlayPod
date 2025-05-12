@@ -4,31 +4,31 @@ from django.urls import reverse
 from .models import Track, Album
 from .forms import AlbumForm, TrackForm
 
-def track_list(request):
-    query = request.GET.get('q', '')
-    genre = request.GET.get('genre', '')
-    selected_artist = request.GET.get('artist', '')
+def track_detail(request, pk):
+    track = get_object_or_404(Track, pk=pk)
+    next_url = request.GET.get('next') or reverse('track_list')
+    favorites = request.session.get('favorites', [])
 
-    tracks = Track.objects.all()
+    tracks = list(Track.objects.filter(album=track.album).order_by('id'))
+    current_index = next((i for i, t in enumerate(tracks) if t.pk == track.pk), None)
 
-    if query:
-        tracks = tracks.filter(title__icontains=query) | tracks.filter(artist__icontains=query)
-    if genre:
-        tracks = tracks.filter(genre=genre)
-    if selected_artist:
-        tracks = tracks.filter(artist=selected_artist)
+    prev_track_url = None
+    next_track_url = None
 
-    genres = Track.objects.values_list('genre', flat=True).distinct()
-    artists = Track.objects.values_list('artist', flat=True).distinct()
+    if current_index is not None:
+        if current_index > 0:
+            prev_track_url = reverse('track_detail', args=[tracks[current_index - 1].pk])
+        if current_index + 1 < len(tracks):
+            next_track_url = reverse('track_detail', args=[tracks[current_index + 1].pk])
 
-    return render(request, 'music/track_list.html', {
-        'tracks': tracks,
-        'query': query,
-        'genre': genre,
-        'genres': genres,
-        'selected_artist': selected_artist,
-        'artists': artists,
+    return render(request, 'music/track_detail.html', {
+        'track': track,
+        'favorite_tracks': favorites,
+        'next_url': next_url,
+        'prev_track_url': prev_track_url,
+        'next_track_url': next_track_url,
     })
+
 
 
 def track_detail(request, pk):
