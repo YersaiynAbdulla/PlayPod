@@ -81,11 +81,12 @@ def album_list(request):
 
 def album_detail(request, pk):
     album = get_object_or_404(Album, pk=pk)
-    tracks = album.tracks.all()
 
     query = request.GET.get('q', '')
     genre = request.GET.get('genre', '')
     artist = request.GET.get('artist', '')
+
+    tracks = Track.objects.filter(album=album)
 
     if query:
         tracks = tracks.filter(title__icontains=query)
