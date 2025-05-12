@@ -3,7 +3,7 @@
 {% block content %}
   <h2 class="mb-4">Каталог треков</h2>
 
-  {% if tracks %}
+  {% comment %} {% if tracks %}
     <div class="row">
       {% for track in tracks %}
         <div class="col-md-6 mb-4">
@@ -21,7 +21,37 @@
     </div>
   {% else %}
     <p class="text-light">Ничего не найдено.</p>
+  {% endif %} {% endcomment %}
+
+  {% if tracks %}
+    <div class="row">
+      {% for track in tracks %}
+        <div class="col-md-6 mb-4">
+          <div class="card h-100 shadow-sm d-flex flex-row justify-content-between align-items-center px-3 py-2"
+               style="background-color: #1e1e1e; border-radius: 16px;">
+          
+            <div class="d-flex align-items-center gap-3">
+              <img src="{{ track.album.cover.url }}" alt="Обложка"
+                   class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+              <div>
+                <h5 class="text-white mb-1">{{ track.title }}</h5>
+                <p class="mb-0 text-white-50 small">{{ track.artist }} — {{ track.genre }}</p>
+              </div>
+            </div>
+
+            <button class="btn btn-outline-light btn-icon play-btn"
+                    data-audio-url="{{ track.audio_file.url }}"
+                    title="Воспроизвести">
+              <i class="bi bi-play-fill"></i>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-light">Ничего не найдено.</p>
   {% endif %}
+  {% comment %} ////////////////// {% endcomment %}
 
   <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="filters">
     <div class="offcanvas-header">
