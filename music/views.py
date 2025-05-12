@@ -3,7 +3,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from .models import Track, Album
 from .forms import AlbumForm, TrackForm
-from django.contrib.auth.decorators import login_required
 
 def track_list(request):
     query = request.GET.get('q', '')
@@ -31,13 +30,11 @@ def track_list(request):
         'artists': artists,
     })
 
-from django.urls import reverse
 
-@login_required
 def track_detail(request, pk):
     track = get_object_or_404(Track, pk=pk)
     next_url = request.GET.get('next') or reverse('track_list')
-    favorite_tracks = request.user.favorite_tracks.all()
+    favorites = request.session.get('favorites', [])
 
     tracks = list(Track.objects.filter(album=track.album).order_by('id'))
     current_index = next((i for i, t in enumerate(tracks) if t.pk == track.pk), None)
@@ -53,7 +50,7 @@ def track_detail(request, pk):
 
     return render(request, 'music/track_detail.html', {
         'track': track,
-        'favorite_tracks': favorite_tracks,
+        'favorite_tracks': favorites,
         'next_url': next_url,
         'prev_track_url': prev_track_url,
         'next_track_url': next_track_url,
@@ -67,20 +64,23 @@ def add_to_favorites(request, pk):
         request.session['favorites'] = favorites
     return redirect('track_list')
 
-@login_required
+
 def favorite_tracks(request):
-    tracks = request.user.favorite_tracks.all()
+    favorite_ids = request.session.get('favorites', [])
+    tracks = Track.objects.filter(pk__in=favorite_ids)
     return render(request, 'music/favorite_tracks.html', {'tracks': tracks})
+
 
 def album_list(request):
     albums = Album.objects.all()
     return render(request, 'music/album_list.html', {'albums': albums})
 
+
 def album_detail(request, pk):
     album = get_object_or_404(Album, pk=pk)
     return render(request, 'music/album_detail.html', {'album': album})
 
-@login_required
+
 def track_add(request):
     if request.method == 'POST':
         form = TrackForm(request.POST, request.FILES)
@@ -90,6 +90,7 @@ def track_add(request):
     else:
         form = TrackForm()
     return render(request, 'music/track_form.html', {'form': form, 'title': 'Добавить трек'})
+
 
 def album_add(request):
     if request.method == 'POST':
@@ -101,7 +102,7 @@ def album_add(request):
         form = AlbumForm()
     return render(request, 'music/album_form.html', {'form': form, 'title': 'Добавить альбом'})
 
-@login_required
+
 def track_edit(request, pk):
     track = get_object_or_404(Track, pk=pk)
     next_url = request.GET.get('next') or reverse('track_list')
@@ -113,9 +114,9 @@ def track_edit(request, pk):
             return redirect('track_list')
     else:
         form = TrackForm(instance=track)
-    return render(request, 'music/track_form.html', {'form': form, 'title': 'Редактировать трек', 'next_url': next_url,})
+    return render(request, 'music/track_form.html', {'form': form, 'title': 'Редактировать трек', 'next_url': next_url})
 
-@login_required
+
 def track_delete(request, pk):
     track = get_object_or_404(Track, pk=pk)
     if request.method == 'POST':
@@ -123,17 +124,17 @@ def track_delete(request, pk):
         return redirect('track_list')
     return render(request, 'music/track_confirm_delete.html', {'track': track})
 
-@login_required
+
 def toggle_favorite(request, pk):
-    track = get_object_or_404(Track, pk=pk)
-    user = request.user
-    if request.user in track.favorited_by.all():
-        track.favorited_by.remove(request.user)
+    favorites = request.session.get('favorites', [])
+    if pk in favorites:
+        favorites.remove(pk)
     else:
-        track.favorited_by.add(request.user)
+        favorites.append(pk)
+    request.session['favorites'] = favorites
     return redirect(request.META.get('HTTP_REFERER', 'track_list'))
 
-@login_required
+
 def album_edit(request, pk):
     album = get_object_or_404(Album, pk=pk)
     next_url = request.GET.get('next') or reverse('album_list')
@@ -144,9 +145,9 @@ def album_edit(request, pk):
             return redirect(next_url)
     else:
         form = AlbumForm(instance=album)
-    return render(request, 'music/album_form.html', {'form': form, 'title': 'Редактировать альбом', 'next_url': next_url,})
+    return render(request, 'music/album_form.html', {'form': form, 'title': 'Редактировать альбом', 'next_url': next_url})
 
-@login_required
+
 def album_delete(request, pk):
     album = get_object_or_404(Album, pk=pk)
     if request.method == 'POST':
@@ -154,7 +155,7 @@ def album_delete(request, pk):
         return redirect('album_list')
     return render(request, 'music/album_confirm_delete.html', {'album': album})
 
-@login_required
+
 def track_json(request, pk):
     track = get_object_or_404(Track, pk=pk)
     return JsonResponse({'audio_url': track.audio.url})
