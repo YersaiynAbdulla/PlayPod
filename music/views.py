@@ -73,9 +73,40 @@ def favorite_tracks(request):
     return render(request, 'music/favorite_tracks.html', {'tracks': tracks})
 
 
-def album_list(request):
-    albums = Album.objects.all()
-    return render(request, 'music/album_list.html', {'albums': albums})
+# def album_list(request):
+#     albums = Album.objects.all()
+#     return render(request, 'music/album_list.html', {'albums': albums})
+
+def album_detail(request, pk):
+    album = get_object_or_404(Album, pk=pk)
+    tracks = album.tracks.all()
+
+    query = request.GET.get('q', '')
+    genre = request.GET.get('genre', '')
+    artist = request.GET.get('artist', '')
+
+    if query:
+        tracks = tracks.filter(title__icontains=query)
+    if genre:
+        tracks = tracks.filter(genre=genre)
+    if artist:
+        tracks = tracks.filter(artist=artist)
+
+    genres = Track.objects.values_list('genre', flat=True).distinct()
+    artists = Track.objects.values_list('artist', flat=True).distinct()
+
+    return render(request, 'music/album_detail.html', {
+        'album': album,
+        'tracks': tracks,
+        'query': query,
+        'genre': genre,
+        'artist': artist,
+        'genres': genres,
+        'artists': artists,
+    })
+
+
+#####################
 
 
 def album_detail(request, pk):
