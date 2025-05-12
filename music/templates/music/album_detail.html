@@ -58,6 +58,23 @@
     <p class="text-light">Нет треков в этом альбоме.</p>
   {% endif %}
 
+  <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="filters">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Фильтры</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p class="text-white fw-semibold">Жанры:</p>
+      {% for g in genres %}
+        <a href="?genre={{ g }}" class="btn btn-sm btn-outline-light mb-2 me-2">{{ g }}</a>
+      {% endfor %}
+      <hr class="bg-light">
+      <p class="text-white fw-semibold">Исполнители:</p>
+      {% for a in artists %}
+        <a href="?artist={{ a }}" class="btn btn-sm btn-outline-light mb-2 me-2">{{ a }}</a>
+      {% endfor %}
+    </div>
+  </div>
 
   <a href="{% url 'album_list' %}" class="btn btn-outline-light mt-4 rounded-pill">← Назад к альбомам</a>
 </div>
