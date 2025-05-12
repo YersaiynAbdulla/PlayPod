@@ -73,9 +73,11 @@ def favorite_tracks(request):
     return render(request, 'music/favorite_tracks.html', {'tracks': tracks})
 
 
-# def album_list(request):
-#     albums = Album.objects.all()
-#     return render(request, 'music/album_list.html', {'albums': albums})
+def album_list(request):
+    albums = Album.objects.all()
+    return render(request, 'music/album_list.html', {'albums': albums})
+
+#######################################
 
 def album_detail(request, pk):
     album = get_object_or_404(Album, pk=pk)
@@ -109,9 +111,9 @@ def album_detail(request, pk):
 #####################
 
 
-def album_detail(request, pk):
-    album = get_object_or_404(Album, pk=pk)
-    return render(request, 'music/album_detail.html', {'album': album})
+# def album_detail(request, pk):
+#     album = get_object_or_404(Album, pk=pk)
+#     return render(request, 'music/album_detail.html', {'album': album})
 
 
 def track_add(request):
